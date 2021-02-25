@@ -32,13 +32,17 @@ export default {
 
 <style scoped lang="scss">
 .chat-messages__wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 410px;
+  height: 390px;
   overflow-y: scroll;
 
   ul {
     width: 100%;
     margin: 0;
+    padding-top: 10px;
 
     li {
       display: inline-block;

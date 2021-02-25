@@ -10,7 +10,7 @@
       background: '#ffffff'
     }"
   >
-    <v-col cols="12" md="12">
+    <v-col class="py-0" cols="12" md="12">
       <v-textarea
           filled
           name="input-7-1"
@@ -19,24 +19,15 @@
           v-model="input"
       ></v-textarea>
     </v-col>
-    <v-col cols="12" md="12">
-      <div class="my-2">
-        <v-btn
-            @click="send"
-            x-large
-            :style="{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              background: '#56c8d8'
-            }"
-            color="primary"
-            dark
-        >
-          Send Message
-        </v-btn>
-      </div>
-    </v-col>
+    <v-btn
+        class="ml-auto mr-2"
+        @click="send"
+        x-large
+        color="primary"
+        dark
+    >
+      Send Message
+    </v-btn>
   </v-row>
 </template>
 
@@ -76,13 +67,12 @@ export default {
 
         let question = {};
         if (this.questions[this.currentQuestion]) {
-          question = this.questions[this.currentQuestion].find(q => q.ask !== undefined);
+          question = this.questions[this.currentQuestion].find(q => q.ask);
 
           if (question && question.ask !== undefined) {
             this.answers[question.ask] = this.input;
           }
         }
-        console.log(question)
 
         this.$emit("next-message", {
           text: this.input,
@@ -100,5 +90,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>
