@@ -80,7 +80,7 @@ export default {
   }),
 
   created() {
-    this.messages = [...this.questions[this.currentQuestion]]
+    this.messages = [...this.questions[this.currentQuestion]];
   },
 
   methods: {
@@ -88,7 +88,7 @@ export default {
       this.messages.push(message);
       ++this.currentQuestion;
 
-      this.questions[this.currentQuestion] && this.messages.push(...this.questions[this.currentQuestion])
+      this.questions[this.currentQuestion] && this.messages.push(...this.questions[this.currentQuestion]);
     }
   }
 }

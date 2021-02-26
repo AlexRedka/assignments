@@ -12,11 +12,11 @@
   >
     <v-col class="py-0" cols="12" md="12">
       <v-textarea
-          filled
-          name="input-7-1"
-          label="Type your message"
-          :error-messages="chatInputErrors"
           v-model="input"
+          :error-messages="chatInputErrors"
+          filled
+          no-resize
+          label="Type your message"
       ></v-textarea>
     </v-col>
     <v-btn
@@ -24,9 +24,10 @@
         @click="send"
         x-large
         color="primary"
-        dark
+        :disabled="isBtnDisabled"
     >
-      Send Message
+      <span v-show="isChatStarting">Let's chat</span>
+      <span v-show="!isChatStarting">Send Message</span>
     </v-btn>
   </v-row>
 </template>
@@ -57,8 +58,25 @@ export default {
       location: '',
       feeling: '',
       hobby: '',
-    }
+    },
+    isChatStarting: true,
+    isBtnDisabled: true
   }),
+
+  watch: {
+    currentQuestion(val) {
+      if (val === this.questions.length - 1) {
+        this.isBtnDisabled = true;
+      }
+    }
+  },
+
+  mounted() {
+    setTimeout(() => {
+      this.isChatStarting = false
+      this.isBtnDisabled = false
+    }, 2500)
+  },
 
   methods: {
     send() {
@@ -69,7 +87,7 @@ export default {
         if (this.questions[this.currentQuestion]) {
           question = this.questions[this.currentQuestion].find(q => q.ask);
 
-          if (question && question.ask !== undefined) {
+          if (question.ask !== undefined) {
             this.answers[question.ask] = this.input;
           }
         }
