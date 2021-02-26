@@ -3,11 +3,13 @@
     <chat-messages
         :current-question="currentQuestion"
         :messages="messages"
+        :is-chat-started="isChatStarted"
     />
     <chat-field
         :current-question="currentQuestion"
         :questions="questions"
         @next-message="nextMessage"
+        @start-chat="startChat"
     />
   </v-container>
 </template>
@@ -18,7 +20,7 @@ import ChatMessages from "@/components/ChatMessages";
 
 export default {
   name: "Chat",
-  components: {ChatMessages, ChatField},
+  components: { ChatMessages, ChatField },
   data: () => ({
     currentQuestion: 0,
     messages: [],
@@ -77,11 +79,8 @@ export default {
         }
       ]
     ],
+    isChatStarted: false
   }),
-
-  created() {
-    this.messages = [...this.questions[this.currentQuestion]];
-  },
 
   methods: {
     nextMessage(message) {
@@ -89,6 +88,11 @@ export default {
       ++this.currentQuestion;
 
       this.questions[this.currentQuestion] && this.messages.push(...this.questions[this.currentQuestion]);
+    },
+
+    startChat() {
+      this.isChatStarted = true
+      this.messages = [...this.questions[this.currentQuestion]];
     }
   }
 }

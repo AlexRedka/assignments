@@ -1,6 +1,11 @@
 <template>
   <v-row class="chat-messages__wrapper">
-    <ul>
+    <v-col cols="12" class="d-flex align-center justify-center fill-height pa-0" v-if="!isChatStarted">
+      <p class="text-center grey--text">
+        Click the button "Let's chat" to start chatting
+      </p>
+    </v-col>
+    <ul v-else>
       <li v-for="(message, index) in messages"
           :key="index"
           :class="message.owner"
@@ -25,6 +30,11 @@ export default {
       type: Number,
       required: true,
       default: 0
+    },
+    isChatStarted: {
+      type: Boolean,
+      required: true,
+      default: false
     }
   }
 }

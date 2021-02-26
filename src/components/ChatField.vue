@@ -1,6 +1,6 @@
 <template>
   <v-row
-    :style="{
+      :style="{
       position: 'absolute',
       bottom: 0,
       left: 0,
@@ -17,17 +17,27 @@
           filled
           no-resize
           label="Type your message"
-      ></v-textarea>
+          :disabled="!isChatStarted || isBtnDisabled"
+      />
     </v-col>
     <v-btn
+        v-if="isChatStarted"
         class="ml-auto mr-2"
         @click="send"
         x-large
         color="primary"
         :disabled="isBtnDisabled"
     >
-      <span v-show="isChatStarting">Let's chat</span>
-      <span v-show="!isChatStarting">Send Message</span>
+      Send Message
+    </v-btn>
+    <v-btn
+        v-else
+        class="ml-auto mr-2"
+        @click="startChat"
+        x-large
+        color="primary"
+    >
+      Let's chat
     </v-btn>
   </v-row>
 </template>
@@ -59,8 +69,8 @@ export default {
       feeling: '',
       hobby: '',
     },
-    isChatStarting: true,
-    isBtnDisabled: true
+    isChatStarted: false,
+    isBtnDisabled: false
   }),
 
   watch: {
@@ -71,20 +81,13 @@ export default {
     }
   },
 
-  mounted() {
-    setTimeout(() => {
-      this.isChatStarting = false
-      this.isBtnDisabled = false
-    }, 2500)
-  },
-
   methods: {
     send() {
       if (this.input.length) {
         this.chatInputErrors = []; // reset errors array
 
         let question = {};
-        if (this.questions[this.currentQuestion]) {
+        if (this.questions[this.currentQuestion]) { // if questions exist
           question = this.questions[this.currentQuestion].find(q => q.ask);
 
           if (question.ask !== undefined) {
@@ -94,7 +97,7 @@ export default {
 
         this.$emit("next-message", {
           text: this.input,
-          ...!!question && { ask: question.ask }, // if question exist - add property "ask"
+          ...!!question && {ask: question.ask}, // if question exist - add property "ask"
           owner: "me"
         });
 
@@ -102,6 +105,11 @@ export default {
       } else {
         this.chatInputErrors.push("This field is required"); // set errors
       }
+    },
+
+    startChat() {
+      this.isChatStarted = true
+      this.$emit('start-chat')
     }
   }
 }
