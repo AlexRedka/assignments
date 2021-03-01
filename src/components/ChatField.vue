@@ -11,13 +11,22 @@
     }"
   >
     <v-col class="py-0" cols="12" md="12">
+      <vue-typed-js
+          v-if="isChatStarted && isTyping"
+          class="typing__wrapper"
+          :strings="['Typing...']"
+          :typeSpeed="100"
+          :loop="isTyping"
+      >
+        <h1 class="typing text-center grey--text font-weight-regular"></h1>
+      </vue-typed-js>
       <v-textarea
           v-model="input"
           :error-messages="chatInputErrors"
+          :disabled="!isChatStarted || isBtnDisabled"
           filled
           no-resize
           label="Type your message"
-          :disabled="!isChatStarted || isBtnDisabled"
       />
     </v-col>
     <v-btn
@@ -43,8 +52,17 @@
 </template>
 
 <script>
+import Vue from "vue";
+import VueTypedJs from "vue-typed-js";
+
+Vue.use(VueTypedJs);
+
 export default {
   name: "ChatField",
+
+  model: {
+    prop: 'isTyping'
+  },
 
   props: {
     currentQuestion: {
@@ -56,7 +74,8 @@ export default {
       type: Array,
       required: true,
       default: () => []
-    }
+    },
+    isTyping: Boolean
   },
 
   data: () => ({
@@ -115,5 +134,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+.typing {
+  font-size: 13px;
+  line-height: 17px;
+
+  &__wrapper {
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    width: 100%;
+  }
+}
 </style>

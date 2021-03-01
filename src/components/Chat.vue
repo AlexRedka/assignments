@@ -6,6 +6,7 @@
         :is-chat-started="isChatStarted"
     />
     <chat-field
+        v-model="isTyping"
         :current-question="currentQuestion"
         :questions="questions"
         @next-message="nextMessage"
@@ -15,12 +16,14 @@
 </template>
 
 <script>
+import {delay} from "../helpers";
+
 import ChatField from "@/components/ChatField";
 import ChatMessages from "@/components/ChatMessages";
 
 export default {
   name: "Chat",
-  components: { ChatMessages, ChatField },
+  components: {ChatMessages, ChatField},
   data: () => ({
     currentQuestion: 0,
     messages: [],
@@ -79,20 +82,32 @@ export default {
         }
       ]
     ],
-    isChatStarted: false
+    isChatStarted: false,
+    robotTypingTime: 1500,
+    isTyping: false
   }),
 
   methods: {
     nextMessage(message) {
+      this.isTyping = true
       this.messages.push(message);
       ++this.currentQuestion;
 
-      this.questions[this.currentQuestion] && this.messages.push(...this.questions[this.currentQuestion]);
+      delay(this.robotTypingTime)
+          .then(() => {
+            this.questions[this.currentQuestion] && this.messages.push(...this.questions[this.currentQuestion]);
+            this.isTyping = false
+          });
     },
 
     startChat() {
       this.isChatStarted = true
-      this.messages = [...this.questions[this.currentQuestion]];
+      this.isTyping = true
+      delay(this.robotTypingTime)
+          .then(() => {
+            this.messages = [...this.questions[this.currentQuestion]];
+            this.isTyping = false
+          });
     }
   }
 }

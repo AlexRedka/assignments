@@ -1,5 +1,5 @@
 <template>
-  <v-row class="chat-messages__wrapper">
+  <v-row id="chat" class="chat-messages__wrapper">
     <v-col cols="12" class="d-flex align-center justify-center fill-height pa-0" v-if="!isChatStarted">
       <p class="text-center grey--text">
         Click the button "Let's chat" to start chatting
@@ -36,6 +36,22 @@ export default {
       required: true,
       default: false
     }
+  },
+
+  data: () => ({
+    chatEl: null
+  }),
+
+  watch: {
+    messages() {
+      if (this.chatEl) {
+        this.chatEl.scrollTop = this.chatEl.scrollHeight;
+      }
+    }
+  },
+
+  mounted() {
+    this.chatEl = this.$el.querySelector("#chat");
   }
 }
 </script>
