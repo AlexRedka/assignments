@@ -45,6 +45,7 @@
         @click="startChat"
         x-large
         color="primary"
+        :disabled="isError"
     >
       Let's chat
     </v-btn>
@@ -75,7 +76,8 @@ export default {
       required: true,
       default: () => []
     },
-    isTyping: Boolean
+    isTyping: Boolean,
+    isError: Boolean
   },
 
   data: () => ({

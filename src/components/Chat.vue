@@ -9,6 +9,7 @@
         v-model="isTyping"
         :current-question="currentQuestion"
         :questions="questions"
+        :is-error="isError"
         @next-message="nextMessage"
         @start-chat="startChat"
     />
@@ -16,7 +17,8 @@
 </template>
 
 <script>
-import {delay} from "../helpers";
+import http from "../http/http";
+import { delay } from "../helpers";
 
 import ChatField from "@/components/ChatField";
 import ChatMessages from "@/components/ChatMessages";
@@ -27,65 +29,24 @@ export default {
   data: () => ({
     currentQuestion: 0,
     messages: [],
-    questions: [
-      [
-        {
-          text: "Hi, I'm Peter!",
-          owner: "him"
-        },
-        {
-          text: "What's your name?",
-          ask: "name",
-          owner: "him"
-        }
-      ],
-      [
-        {
-          text: "Nice to meet you!",
-          owner: "him"
-        },
-        {
-          text: "How was your day?",
-          ask: "feeling",
-          owner: "him"
-        }
-      ],
-      [
-        {
-          text: "Where're you from?",
-          ask: "location",
-          owner: "him"
-        }
-      ],
-      [
-        {
-          text: "Nice!",
-          owner: "him"
-        },
-        {
-          text: "How old are you?",
-          ask: "age",
-          owner: "him"
-        }
-      ],
-      [
-        {
-          text: "What's your favorite hobby?",
-          ask: "hobby",
-          owner: "him"
-        }
-      ],
-      [
-        {
-          text: "Wow, cool",
-          owner: "him"
-        }
-      ]
-    ],
+    questions: [],
     isChatStarted: false,
     robotTypingTime: 1500,
-    isTyping: false
+    isTyping: false,
+    isError: false
   }),
+
+  async created() {
+    await http.get('questions.json')
+      .then(res => {
+        this.questions = res.data
+      })
+      .catch((e) => {
+        this.questions = []
+        this.isError = true
+        throw new Error(e)
+      })
+  },
 
   methods: {
     nextMessage(message) {
