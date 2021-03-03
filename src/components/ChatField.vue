@@ -14,8 +14,8 @@
       <vue-typed-js
           v-if="isChatStarted && isTyping"
           class="typing__wrapper"
-          :strings="['Typing...']"
-          :typeSpeed="100"
+          :strings="[typingString]"
+          :typeSpeed="50"
           :loop="isTyping"
       >
         <h1 class="typing text-center grey--text font-weight-regular"></h1>
@@ -27,7 +27,26 @@
           filled
           no-resize
           label="Type your message"
-      />
+      >
+        <template #append>
+          <v-menu class="emoji__wrapper" offset-y :close-on-content-click="false">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                  color="primary"
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                  :disabled="!isChatStarted || isBtnDisabled"
+              >
+                <v-icon class="pointer" @click="isShowEmoji = !isShowEmoji">mdi-sticker-emoji</v-icon>
+              </v-btn>
+            </template>
+            <div>
+              <emoji @select="selectEmoji"/>
+            </div>
+          </v-menu>
+        </template>
+      </v-textarea>
     </v-col>
     <v-btn
         v-if="isChatStarted"
@@ -54,9 +73,10 @@
 
 <script>
 import Vue from "vue";
-import { ref, watch, } from "@vue/composition-api";
+import {ref, watch,} from "@vue/composition-api";
 
 import VueTypedJs from "vue-typed-js";
+import {Picker} from 'emoji-mart-vue'
 
 Vue.use(VueTypedJs);
 
@@ -65,6 +85,10 @@ export default {
 
   model: {
     prop: 'isTyping'
+  },
+
+  components: {
+    emoji: Picker
   },
 
   props: {
@@ -82,7 +106,7 @@ export default {
     isError: Boolean
   },
 
-  setup(props, { emit }) {
+  setup(props, {emit}) {
     let input = ref('');
     let chatInputErrors = ref([]);
     let answers = ref({
@@ -94,6 +118,8 @@ export default {
     });
     let isChatStarted = ref(false);
     let isBtnDisabled = ref(false);
+    const typingString = ref('Peter typing...');
+    const isShowEmoji = false;
 
     const send = () => {
       if (input.value.length) {
@@ -108,7 +134,7 @@ export default {
         }
         emit("next-message", {
           text: input.value,
-          ...!!question && { ask: question.ask }, // if question exist - add property "ask"
+          ...!!question && {ask: question.ask}, // if question exist - add property "ask"
           owner: "me"
         });
 
@@ -123,13 +149,18 @@ export default {
       emit('start-chat')
     }
 
+    const selectEmoji = emoji => {
+      console.log(emoji)
+      input.value += emoji.native;
+    };
+
     watch(() => props.currentQuestion,
-      (val) => {
-        if (val === props.questions.length - 1) {
-          isBtnDisabled.value = true;
+        (val) => {
+          if (val === props.questions.length - 1) {
+            isBtnDisabled.value = true;
+          }
         }
-      }
-    )
+    );
 
     return {
       input,
@@ -137,8 +168,11 @@ export default {
       answers,
       isChatStarted,
       isBtnDisabled,
+      typingString,
+      isShowEmoji,
       send,
-      startChat
+      startChat,
+      selectEmoji
     }
   },
 }
