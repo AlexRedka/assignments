@@ -17,6 +17,7 @@
 </template>
 
 <script>
+
 export default {
   name: "ChatMessages",
 
@@ -25,11 +26,6 @@ export default {
       type: Array,
       required: true,
       default: () => []
-    },
-    currentQuestion: {
-      type: Number,
-      required: true,
-      default: 0
     },
     isChatStarted: {
       type: Boolean,

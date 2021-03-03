@@ -54,6 +54,8 @@
 
 <script>
 import Vue from "vue";
+import { ref, watch, } from "@vue/composition-api";
+
 import VueTypedJs from "vue-typed-js";
 
 Vue.use(VueTypedJs);
@@ -80,59 +82,65 @@ export default {
     isError: Boolean
   },
 
-  data: () => ({
-    input: '',
-    chatInputErrors: [],
-    answers: {
+  setup(props, { emit }) {
+    let input = ref('');
+    let chatInputErrors = ref([]);
+    let answers = ref({
       name: '',
       age: 0,
       location: '',
       feeling: '',
       hobby: '',
-    },
-    isChatStarted: false,
-    isBtnDisabled: false
-  }),
+    });
+    let isChatStarted = ref(false);
+    let isBtnDisabled = ref(false);
 
-  watch: {
-    currentQuestion(val) {
-      if (val === this.questions.length - 1) {
-        this.isBtnDisabled = true;
-      }
-    }
-  },
-
-  methods: {
-    send() {
-      if (this.input.length) {
-        this.chatInputErrors = []; // reset errors array
+    const send = () => {
+      if (input.value.length) {
+        chatInputErrors.value = []; // reset errors array
 
         let question = {};
-        if (this.questions[this.currentQuestion]) { // if questions exist
-          question = this.questions[this.currentQuestion].find(q => q.ask);
-
+        if (props.questions[props.currentQuestion]) { // if questions exist
+          question = props.questions[props.currentQuestion].find(q => q.ask);
           if (question.ask !== undefined) {
-            this.answers[question.ask] = this.input;
+            answers.value[question.ask] = input.value;
           }
         }
-
-        this.$emit("next-message", {
-          text: this.input,
-          ...!!question && {ask: question.ask}, // if question exist - add property "ask"
+        emit("next-message", {
+          text: input.value,
+          ...!!question && { ask: question.ask }, // if question exist - add property "ask"
           owner: "me"
         });
 
-        this.input = "";
+        input.value = "";
       } else {
-        this.chatInputErrors.push("This field is required"); // set errors
+        chatInputErrors.value.push("This field is required"); // set errors
       }
-    },
+    };
 
-    startChat() {
-      this.isChatStarted = true
-      this.$emit('start-chat')
+    const startChat = () => {
+      isChatStarted.value = true
+      emit('start-chat')
     }
-  }
+
+    watch(() => props.currentQuestion,
+      (val) => {
+        if (val === props.questions.length - 1) {
+          isBtnDisabled.value = true;
+        }
+      }
+    )
+
+    return {
+      input,
+      chatInputErrors,
+      answers,
+      isChatStarted,
+      isBtnDisabled,
+      send,
+      startChat
+    }
+  },
 }
 </script>
 

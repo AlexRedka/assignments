@@ -17,8 +17,9 @@
 </template>
 
 <script>
-import http from "../http/http";
-import { delay } from "../helpers";
+import axios from 'axios';
+import { delay } from "@/helpers";
+import { ref } from "@vue/composition-api";
 
 import ChatField from "@/components/ChatField";
 import ChatMessages from "@/components/ChatMessages";
@@ -26,51 +27,49 @@ import ChatMessages from "@/components/ChatMessages";
 export default {
   name: "Chat",
   components: {ChatMessages, ChatField},
-  data: () => ({
-    currentQuestion: 0,
-    messages: [],
-    questions: [],
-    isChatStarted: false,
-    robotTypingTime: 1500,
-    isTyping: false,
-    isError: false
-  }),
+  setup() {
+    let currentQuestion = ref(0);
+    let messages = ref([]);
+    let questions = ref([]);
+    let isChatStarted = ref(false);
+    let robotTypingTime = ref(1500);
+    let isTyping = ref(false);
+    let isError = ref(false);
 
-  async created() {
-    await http.get('questions.json')
-      .then(res => {
-        this.questions = res.data
-      })
-      .catch((e) => {
-        this.questions = []
-        this.isError = true
-        throw new Error(e)
-      })
-  },
+    const nextMessage = message => {
+      isTyping.value = true
+      messages.value.push(message);
+      ++currentQuestion.value;
+      delay(robotTypingTime.value)
+        .then(() => {
+          questions.value[currentQuestion.value] && messages.value.push(...questions.value[currentQuestion.value]);
+          isTyping.value = false
+        });
+    };
 
-  methods: {
-    nextMessage(message) {
-      this.isTyping = true
-      this.messages.push(message);
-      ++this.currentQuestion;
+    const startChat = () => {
+      isChatStarted.value = true;
+      isTyping.value = true;
+      delay(robotTypingTime.value)
+        .then(() => {
+          messages.value = [...questions.value[currentQuestion.value]];
+          isTyping.value = false;
+        });
+    };
 
-      delay(this.robotTypingTime)
-          .then(() => {
-            this.questions[this.currentQuestion] && this.messages.push(...this.questions[this.currentQuestion]);
-            this.isTyping = false
-          });
-    },
+    const getQuestions = () => {
+      axios
+      .get('questions.json')
+      .then(res => questions.value = res.data)
+      .catch(() => isError.value = true);
+    };
 
-    startChat() {
-      this.isChatStarted = true
-      this.isTyping = true
-      delay(this.robotTypingTime)
-          .then(() => {
-            this.messages = [...this.questions[this.currentQuestion]];
-            this.isTyping = false
-          });
+    getQuestions();
+
+    return {
+      currentQuestion, messages, questions, isChatStarted, robotTypingTime, isTyping, isError, nextMessage, startChat,
     }
-  }
+  },
 }
 </script>
 
